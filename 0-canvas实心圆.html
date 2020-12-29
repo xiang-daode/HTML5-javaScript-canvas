@@ -1,0 +1,19 @@
+<!DOCTYPE HTML>
+<html>
+<body bgcolor="#FFF">
+<canvas id="myCanvas" width="1600" height="800"	></canvas>
+<script>
+
+var c=document.getElementById("myCanvas");
+var cxt=c.getContext("2d");
+
+	cxt.fillStyle="#abc";
+	cxt.beginPath();
+	cxt.arc(800,400,300,0,Math.PI*2,true);
+	cxt.closePath();
+	cxt.fill();
+	
+	/* see : https://www.w3school.com.cn/tags/canvas_arc.asp */
+</script>
+</body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE HTML>
+<html>
+<body bgcolor="#000">
+<canvas id="myCanvas" width="1600" height="800" style="border:2px solid #808080;
+	position:absolute;left:100px;top:10px;background:#000000"
+onMouseMove="MouseMove(window.event.x-100,window.event.y-10)"
+onMouseDown="MouseDown(window.event.x-100,window.event.y-10)"
+onMouseUp="MouseUp()"
+	>
+Your browser does not support the canvas element.
+</canvas>
+<div id="div" style="border:2px solid #808080;
+	position:absolute;left:100px;top:820px;background:#FFFFCC">
+按下鼠标写写画画，F5清空重来。HTML5+javascript编程:项道德,2020-12-28</div>
+
+<script type="text/javascript">
+var x0=400;
+var y0=300;
+var k=10;
+var c=document.getElementById("myCanvas");
+var cxt=c.getContext("2d");
+var flg=0;//鼠标按下:1 
+var xLst=0;
+var yLst=0;
+
+//鼠标弹开时:
+function MouseUp(){
+    flg=0;
+	var rgb= "#"+parseInt(0xFFFFFF*Math.random()).toString(16);//线色；
+    cxt.strokeStyle =rgb;
+    div.style.background=rgb;	
+}
+
+//鼠标按下后:
+function MouseDown(x,y){
+    flg=1;
+	xLst=x;yLst=y;
+}
+
+//鼠标按下,且移动过程中绘画:
+function MouseMove(x,y){	
+	if(flg==1){
+		for(var h=0;h<10;h+=1){   	
+			 cxt.save();//保持；
+			 cxt.beginPath(); //开始独立的颜色;		 
+              //画粗线:
+			 if(xLst!=0 && yLst!=0){
+					 cxt.lineWidth = 8;//线宽；
+					 cxt.moveTo(x,y);//移动到此;				
+					 cxt.lineTo(xLst,yLst);//画至此；
+			 }
+			 //画花:
+			 for(var q=0;q<=h;q+=1){
+				cxt.lineWidth = 2;//线宽；
+				cxt.moveTo(x,y);//移动到此;				
+				cxt.lineTo(x+h*Math.sin(q),y+h*Math.cos(h));//画至此；
+	            xLst=x;yLst=y;
+			 } 			 
+		     cxt.stroke(); //执行；
+		     cxt.restore(); //恢复;    
+	    }
+	}
+} 
+
+</script>
+</body>
+</html>

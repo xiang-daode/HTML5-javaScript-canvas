@@ -1,0 +1,100 @@
+<!DOCTYPE HTML>
+<html>
+<body bgcolor="#FFF">
+<canvas id="myCanvas" width="1600" height="800"	
+ onClick="byClick(window.event.x,window.event.y)"
+ onMouseDown="MouseDown(window.event.x,window.event.y)"
+ onMouseMove="MouseMove(window.event.x,window.event.y)"
+ onMouseUp="MouseUp(window.event.x,window.event.y)" 
+></canvas><hr />
+按下鼠标画画,F5或刷新清空,HTML+javaScript编程:daode1212,2020-12-29
+<script>
+
+var c=document.getElementById("myCanvas");
+var cxt=c.getContext("2d");
+var xs=new Array();//建立数组,记X坐标,用于连续曲线
+var ys=new Array();//建立数组,记Y坐标,用于连续曲线
+var xx=new Array();//建立数组,记X坐标,用于单击
+var yy=new Array();//建立数组,记Y坐标,用于单击
+var m=12;//初始化大小	
+var flg=0;//鼠标按下标志
+var out;//动画控制
+
+
+//鼠标单击时添加XY坐标到数组中:	
+function byClick(x,y){
+   xx.push(x);
+   yy.push(y);
+   star();
+}
+
+//鼠标按下时:
+function MouseDown(x,y){
+  flg=1;  
+}
+
+//鼠标移动时:
+function MouseMove(x,y){
+   if(flg==1){
+      xs.push(x);
+      ys.push(y);   
+      star2(x,y);   
+   }
+}
+
+//鼠标弹开后:
+function MouseUp(x,y){
+  flg=0;
+  clearTimeout(out);
+}
+
+
+//以动画方式,画出所有点:
+function star(){
+    //以动画方式,画出所有单击记录的点:
+   for(var i=0;i<xx.length;i++){ 	
+     while(m>0){
+		//实心:
+		cxt.fillStyle="#"+parseInt(16777216*Math.random()).toString(16);
+		cxt.beginPath();		
+		// 花朵曲线:	
+		cxt.moveTo(xx[i],yy[i]);
+		for(var q=0;q<6.3;q+=0.25){
+		   var xc=xx[i]+m*Math.cos(q)+m*Math.cos(q*6)/4;
+		   var yc=yy[i]+m*Math.sin(q)+m*Math.sin(q*6)/4;
+		   cxt.lineTo(xc,yc);			
+		}
+		cxt.closePath();
+		cxt.fill();	
+	    m-=8;
+      }
+	  m=12;
+   }
+	
+   //以动画方式,画出所有曲线中的点:
+   for(var i=0;i<xs.length;i++){ 	
+     while(m>0){
+			//空心:
+			cxt.strokeStyle="#"+parseInt(16777216*Math.random()).toString(16);
+			cxt.lineWidth=2;
+			cxt.beginPath();			
+			//放射线:			
+			for(var q=0;q<6.3;q+=0.5){
+			   cxt.moveTo(xs[i],ys[i]);
+			   var xc=xs[i]+m*Math.cos(q);
+			   var yc=ys[i]+m*Math.sin(q);
+			   cxt.lineTo(xc,yc);			
+			}			
+			cxt.closePath();
+			cxt.stroke();
+			//------------------------
+	    m-=5;
+      }
+	  m=12;
+   }   
+   out=  setTimeout("star()",200);
+}	
+	
+</script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE HTML>
+<html>
+<body bgcolor="#FFF">
+<canvas id="myCanvas" width="1600" height="800"	></canvas>
+<script>
+
+var c=document.getElementById("myCanvas");
+var cxt=c.getContext("2d");
+    
+	var xx=new Array();//建立数组,记X坐标
+	var yy=new Array();//建立数组,记Y坐标
+	
+	xx=[-300,300,300,-300,-300];//各点的X坐标
+	yy=[300,300,-300,-300,300];//各点的XY坐标
+	
+	
+	//空心:
+	cxt.strokeStyle="#c00";
+	cxt.lineWidth=5;
+	cxt.beginPath();
+	cxt.moveTo(800+xx[0],400+yy[0]);
+	cxt.lineTo(800+xx[1],400+yy[1]);
+	cxt.lineTo(800+xx[2],400+yy[2]);
+	cxt.lineTo(800+xx[3],400+yy[3]);
+	cxt.lineTo(800+xx[4],400+yy[4]);
+	cxt.closePath();
+	cxt.stroke();
+	
+	//实心:
+	cxt.fillStyle="#00c";
+	cxt.beginPath();
+	cxt.moveTo(800+xx[0]*0.75,400+yy[0]*0.75);
+	cxt.lineTo(800+xx[1]*0.75,400+yy[1]*0.75);
+	cxt.lineTo(800+xx[2]*0.75,400+yy[2]*0.75);
+	cxt.lineTo(800+xx[3]*0.75,400+yy[3]*0.75);
+	cxt.lineTo(800+xx[4]*0.75,400+yy[4]*0.75);
+	cxt.closePath();
+	cxt.fill();
+	
+	/* 参数说明:  https://www.w3school.com.cn/tags/html_ref_canvas.asp */
+</script>
+</body>
+</html>

@@ -1,0 +1,58 @@
+<!DOCTYPE HTML>
+<html>
+<body bgcolor="#000">
+<canvas id="myCanvas" width="1600" height="800" style="border:1px solid #808080;
+	position:absolute;left:100px;top:10px;background:#ffffff"
+onMouseMove="MouseMove(window.event.x-100,window.event.y-10)"
+onMouseDown="MouseDown(window.event.x-100,window.event.y-10)"
+onMouseUp="MouseUp()";
+	>
+Your browser does not support the canvas element.
+</canvas>
+<div id="div" style="border:2px solid #808080;
+	position:absolute;left:600px;top:820px;background:#FFFFCC">
+按下鼠标画画或写字，F5重来。---HTML+javascript编程:daode1212,2020-12-28</div>
+<script type="text/javascript">
+
+var c=document.getElementById("myCanvas");
+var cxt=c.getContext("2d");
+var x0=0;
+var y0=0;
+var flag=0;
+
+//记录鼠标已经按下:
+function MouseDown(x,y){
+	flag=1;
+	x0=x;
+	y0=y;
+}
+
+//记录鼠标已经弹起:
+function MouseUp(){
+	flag=0;
+}
+
+//在鼠标按下,并移动过程中绘画:
+function MouseMove(x,y){
+  if(flag==1){
+    /*画头像*/
+	cxt.save();//保持；
+	cxt.fillStyle="#"+parseInt(16777216*Math.random()).toString(16);
+	cxt.strokeStyle="#"+parseInt(16777216*Math.random()).toString(16);
+	cxt.beginPath();
+	
+	cxt.arc(x,y-2,10,0,Math.PI,true);
+	cxt.arc(x-4,y,2,0,2*Math.PI,true);
+	cxt.arc(x,y,8,-Math.PI,0,true);
+	cxt.arc(x+4,y,2,0,2*Math.PI,true);	
+	
+	cxt.closePath();
+	cxt.fill();
+	cxt.stroke(); //执行；
+	cxt.restore(); //恢复
+  }
+}
+
+</script>
+</body>
+</html>
