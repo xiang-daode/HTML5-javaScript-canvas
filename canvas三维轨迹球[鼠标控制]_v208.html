@@ -1,0 +1,388 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="GB2312">
+    <title>canvas绘制3D</title>
+    </head>
+<body onLoad="main()">
+    <div id="preview3"></div>
+    <center>
+        <canvas id="myCanvas" width="1200" height="760"
+                onMouseMove="MouseMove(event.x,event.y)"
+                onMouseDown="MouseDown(event)"
+                onMouseUp="MouseUp()" ></canvas>
+    </center>
+	<center>控制:鼠标之左健:平移,右键:旋转,滚轮:缩放.  HTML+JS编程: Xaing.daode1212+Han.ShiChong, 2020-12-30</center>
+</body>
+
+<script>
+
+	var ww=1200;
+	var hh=760;
+	var centerx=ww/2;
+	var centery=hh/2;
+	var t=0; 
+	var PI=3.14159265;	
+	var flag=-1;
+	var prex=0;
+	var prey=0;
+	var curx=0;
+	var cury=0;
+	var canvas=document.getElementById('myCanvas');
+	var context=canvas.getContext("2d");
+	var lastPos = new Array(0.0,0.0,0.0);//两个及以上的数字为内容
+	var curPos = new Array(0.0, 0.0, 0.0);
+	var axis = new Array(1.0, 0, 0);
+	var rotation_matrix = new Array(1, 0, 0, 0, 1, 0, 0, 0, 1);
+	var last_matrix = new Array(1, 0, 0, 0, 1, 0, 0, 0, 1);
+	var theta = 0;
+	var ridus = 10;
+	var count = 0;
+    var scale = 1;
+	
+	//点集对象数组:
+	var arrx = new Array();
+	var arry = new Array();
+	var arrz = new Array();
+    
+
+  windowAddMouseWheel();
+
+  //取消默认的浏览器自带右键菜单项：
+  window.oncontextmenu = function (e) {
+        e.preventDefault();
+   }
+  
+  //鼠标事件处理.按下:
+  function MouseDown(event){
+		var btnNum = event.button;
+        if (btnNum==2){
+            flag = 2;//右键
+            Hemishere(event.X, event.Y, GetSquareLength(), curPos);
+            lastPos[0] = curPos[0];
+            lastPos[1] = curPos[1];
+            lastPos[2] = curPos[2];            
+            toOne(lastPos);            
+        } else if (btnNum == 0) {
+             flag=0;//左键
+        }else if(btnNum==1){
+             flag=1;//中键
+        }else{
+            alert("您点击了" + btnNum+ "号键，功能尚未写入");
+        }
+		prex=window.event.x;
+		prey=window.event.y;
+  }
+  
+  //鼠标事件处理.滚轮:
+  function windowAddMouseWheel() {
+        var scrollFunc = function (e) {
+            e = e || window.event;
+            if (e.wheelDelta) {  //判断浏览器IE，谷歌滑轮事件
+                if (e.wheelDelta > 0) { //当滑轮向上滚动时
+                    {
+                        scale /= 1.1;
+                    }
+                }
+                if (e.wheelDelta < 0) { //当滑轮向下滚动时
+                    {
+                        scale *= 1.1;
+                       
+                    }
+                }
+            } else if (e.detail) {  //Firefox滑轮事件
+                if (e.detail > 0) { //当滑轮向上滚动时
+                    {
+                        scale /= 1.1;
+                    }
+                }
+                if (e.detail < 0) {
+                    scale *= 1.1;
+                }
+            }
+        };
+        //给页面绑定滑轮滚动事件
+        if (document.addEventListener) { //火狐使用DOMMouseScroll绑定
+            document.addEventListener('DOMMouseScroll', scrollFunc, false);
+        }
+        //其他浏览器直接绑定滚动事件
+        window.onmousewheel = document.onmousewheel = scrollFunc;
+        //console.log(scale);
+  }
+
+  //矩阵乘法:
+  function matrixMul(a, b) {
+        var c = new Array(a.length);
+        for (var i = 0; i < a.length; i++) {
+            var px = Math.floor(i / 3);
+            var py = i % 3;
+
+            var sum = 0;
+            for (var j = 0; j < 3; j++) {
+                sum += (a[px * 3 + j] * b[py + j * 3]);
+            }
+            c[i] = sum;
+        }
+        return c;
+  }
+
+  //移动之分量计算:
+  function Motion( x,  y) {
+        var  d, dx, dy, dz;
+
+        // 计算当前的鼠标单位半球面(Hemishere)坐标
+        if (!Hemishere(x, y, GetSquareLength(), curPos)) {
+            return;
+        }
+
+        // 计算移动量的三个方向分量
+        dx = curPos[0] - lastPos[0];
+        dy = curPos[1] - lastPos[1];
+        dz = curPos[2] - lastPos[2];
+
+        //如果有移动:
+        if ((0.0 != dx) || (0.0 != dy) || (0.0 != dz))
+        {
+
+            //计算移动距离，用来近似移动的球面距离
+            d = Math.sqrt(dx * dx + dy * dy + dz * dz);
+
+            //通过移动距离计算移动的角度
+            theta = d * 180.0;
+            theta = theta * 3.14159 / 180;
+            //计算移动平面的法向量，即：lastPos × curPos (叉乘,外积)
+            axis[0] = lastPos[1] * curPos[2] - lastPos[2] * curPos[1];
+            axis[1] = lastPos[2] * curPos[0] - lastPos[0] * curPos[2];
+            axis[2] = lastPos[0] * curPos[1] - lastPos[1] * curPos[0];
+
+            axis = toOne(axis);
+
+           
+            //记录当前的鼠标单位半球面坐标:
+            lastPos[0] = curPos[0];
+            lastPos[1] = curPos[1];
+            lastPos[2] = curPos[2];
+
+            //DrawLine(0, 0, 0, lastPos[0]*500, lastPos[1]*500, lastPos[2]*500);
+           
+            MyUpdate();//更新旋转矩阵
+
+        }
+  }
+
+  //规范化,归一化:
+  function toOne(ax) {
+        var value = Math.sqrt(ax[0] * ax[0] + ax[1] * ax[1] + ax[2] * ax[2]);
+        ax[0] = ax[0] / value;
+        ax[1] = ax[1] / value;
+        ax[2] = ax[2] / value;
+        return ax;
+  }
+
+  //更新旋转矩阵:
+  function MyUpdate() {
+        var vx, vy, vz;
+        vx = axis[0];
+        vy = axis[1];
+        vz = axis[2];
+
+        last_matrix[0] = vx * vx * (1 - Math.cos(theta)) + Math.cos(theta);
+        last_matrix[1] = vx * vy * (1 - Math.cos(theta)) - vz * Math.sin(theta);
+        last_matrix[2] = vx * vz * (1 - Math.cos(theta)) + vy * Math.sin(theta);
+       
+        last_matrix[3] = vx * vy * (1 - Math.cos(theta)) + vz * Math.sin(theta);
+        last_matrix[4] = vy * vy * (1 - Math.cos(theta)) + Math.cos(theta);
+        last_matrix[5] = vy * vz * (1 - Math.cos(theta)) - vx * Math.sin(theta);
+     
+        last_matrix[6] = vx * vz * (1 - Math.cos(theta)) - vy * Math.sin(theta);
+        last_matrix[7] = vy * vz * (1 - Math.cos(theta)) + vx * Math.sin(theta);
+        last_matrix[8] = vz * vz * (1 - Math.cos(theta)) + Math.cos(theta);
+
+        if (last_matrix[0].toString().length == 3)
+            last_matrix = new Array(1, 0, 0, 0, 1, 0, 0, 0, 1);
+
+        if (rotation_matrix[0].toString().length == 3)
+            rotation_matrix = new Array(1, 0, 0, 0, 1, 0, 0, 0, 1);
+
+        rotation_matrix = matrixMul(last_matrix, rotation_matrix);
+  }
+    
+  //鼠标事件处理.移动:
+  function MouseMove(x, y) {
+        count++;
+
+        if (flag == -1)
+            return;
+        else if (flag == 0) {
+            curx = x;
+            cury = y;
+            centerx += curx - prex;
+            centery += cury - prey;
+            prex = curx;
+            prey = cury;
+        }
+        else if (flag == 2) {
+            Motion(x, y);
+            //console.log(rotation_matrix);
+            count = 0;
+        }
+	}
+	
+  //鼠标事件处理.弹起:
+  function MouseUp(){
+        flag = -1;
+        ////console.log(rotation_matrix);
+  }
+
+  //轨迹球坐标计算:
+  function Hemishere(x,y,d,v)  {
+        var z;
+        //计算x, y坐标:
+        v[0] = x - window.screen.width/2;
+        v[1] = y - window.screen.height/2;
+        //计算z坐标:f
+        z = d * d - v[0] * v[0] - v[1] * v[1];
+        if (z < 0) {
+            return false;
+        }
+        v[2] = Math.sqrt(z);
+        
+        //单位化:
+        v[0] /= d;
+        v[1] /= d;
+        v[2] /= d;
+        v=toOne(v);
+     
+        return true;
+  }
+
+  //获取最长边:
+  function GetSquareLength()    {
+        return window.screen.width > window.screen.height ? window.screen.width : window.screen.height;
+  }
+    
+  //绘制所有对象:
+  function drawAll() {
+		//绘制数组构成的点集:
+		for (var i = 0; i < arrx.length; i++) {
+            drawPoint(arrx[i], arry[i], arrz[i]);
+        }
+  }
+
+  //入口,主函数:
+  function main(){
+	    
+	    context.fillStyle ="rgb(5,5,5)";
+        context.fillRect(0, 0, ww, hh);
+        
+        //三坐标轴方向,线段, x-y-z Axis:
+        DrawLine(0, 0, 0, 0, 0, 40);
+        DrawLine(0, 0, 0, 0, 40, 0);
+        DrawLine(0, 0, 0, 40, 0, 0);
+		
+		/* //球面曲线-1,sphere:
+		var R=hh/8;
+		for(var p=0;p<2*PI;p+=PI/4){ 
+		  for(var q=-PI/2;q<PI/2;q+=.05){
+		      var xx = R * Math.cos(p)*Math.cos(q);
+		      var yy = R * Math.sin(p)*Math.cos(q);			
+              var zz = R * Math.sin(q);
+              arrx.push(xx);
+              arry.push(yy);
+              arrz.push(zz);
+              //drawPoint(xx, yy, zz);
+	       } 
+        }*/
+    
+		/* //球面曲线-2,sphere:*/
+		var R=hh/8;
+		for(var g=-PI;g<PI;g+=0.005){ 
+		      var q=g*5;var p=g*6;
+		      var xx = R * Math.cos(p)*Math.cos(q);
+		      var yy = R * Math.sin(p)*Math.cos(q);			
+              var zz = R * Math.sin(q);
+              arrx.push(xx);
+              arry.push(yy);
+              arrz.push(zz);
+        }
+	
+	
+        /*
+        //qube: 
+        DrawLine(-100,-100,0,-100,-100,200);	//bar-1
+		DrawLine(-100,100,0,-100,100,200);	 //bar-2
+		DrawLine(100,100,0,100,100,200);	 //bar-3
+		DrawLine(100,-100,0,100,-100,200);	 //bar-4		
+		
+		DrawLine(-100,-100,0,-100,100,0);	//bar-1
+		DrawLine(-100,100,0,100,100,0);	 //bar-2
+		DrawLine(100,100,0,100,-100,0);	 //bar-3
+		DrawLine(100,-100,0,-100,-100,0);	 //bar-4		
+		
+		DrawLine(-100,-100,200,-100,100,200);	//bar-1
+		DrawLine(-100,100,200,100,100,200);	 //bar-2
+		DrawLine(100,100,200,100,-100,200);	 //bar-3
+		DrawLine(100,-100,200,-100,-100,200);	 //bar-4	
+        */
+		
+		
+        drawAll();
+        setTimeout("main()", 5);
+  }   
+
+  //绘制点集,加入透视变换效果:
+  function drawPoint(xx,yy,zz) {
+        var x = xx * rotation_matrix[0] + yy * rotation_matrix[1] + zz * rotation_matrix[2];
+        var y = xx * rotation_matrix[3] + yy * rotation_matrix[4] + zz * rotation_matrix[5];
+        var z = xx * rotation_matrix[6] + yy * rotation_matrix[7] + zz * rotation_matrix[8];
+
+        x *= scale;
+        y *= scale;
+        z *= scale;
+                
+        var zf = (800 - z)/800; 
+        var y2 = centery + y / zf;
+        var x2 = centerx + x / zf;      
+
+        //绘制圆片集:
+        context.beginPath();
+        //var rr = 255 *(1-zf * zf/2);//远近颜色RED
+        //var gg = 255 *(1-zf * zf/5);//远近颜色GREEN
+        //var bb = 255 *(1-zf * zf/8);//远近颜色BLUE
+
+		var rr = 128+127*Math.sin(.3+zf*10);//远近颜色RED
+        var gg = 128+127*Math.sin(.7+zf*10);//远近颜色GREEN
+        var bb = 128+127*Math.sin(.9+zf*10);//远近颜色BLUE
+		
+		
+        context.fillStyle = "rgba(" + rr + "," + gg + "," + bb + "," +  (1.5-zf*zf)  + ")";//远处渐透明-截去少
+        context.arc(x2, y2, 2.5 / zf, 0, Math.PI*2);//远处渐小
+        context.closePath();
+        context.fill();	
+
+  }
+  
+  //绘制线段:
+  function  DrawLine(x0,y0,z0,x1,y1,z1){		
+		var dis=Math.sqrt((x1-x0)*(x1-x0)+(y1-y0)*(y1-y0)+(z1-z0)*(z1-z0));
+		//步长细分:
+		if(dis>1){
+		  for(var i=0;i<1;i=i+5/dis){		       		
+		    var xx=(x1-x0)*i+x0;
+		    var yy=(y1-y0)*i+y0;	
+		    var zz=(z1-z0)*i+z0;
+            try {
+                drawPoint(xx, yy, zz);
+            }
+            catch (err) {
+  			    ////console.log(zz)
+                ////console.log(err.message);
+            }
+	      } 		    	
+    	}   	
+  }
+    
+</script>    
+    
+
+</html>

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="GB2312">
+    <title>3D动画--自定义曲面体</title>
+<script>
+	var ww=1200;
+    var hh=760;
+	var t=0; 	
+	var PI=3.14159265;
+	
+	//入口,主函数:	
+	function main(){
+		var canvas=document.getElementById('myCanvas');
+		var context=canvas.getContext("2d"); 
+
+		//清空画面:				
+		context.fillStyle ="rgb(5,5,5)";
+		context.fillRect(0,0,ww,hh);	
+								
+		//留下轨迹:
+		var R=hh/4;
+		for(var p=0;p<2*PI;p+=PI/6){ 
+		  for(var q=-PI/2;q<PI/2;q+=.025){	        		
+			//生成点集:
+			var x=R*Math.cos(p)*Math.cos(q);
+			var y=R*Math.sin(p)*Math.cos(q);			
+			var z=R*Math.sin(q);	
+			
+			//以Z为轴旋转所有点（x,y,z）,旋转角:t:
+			var x0=x*Math.sin(t)+y*Math.cos(t);
+			var y0=x*Math.cos(t)-y*Math.sin(t);
+			var z0=z;		  
+		  
+			//以X为轴旋转所有点（x,y,z）,旋转角:u:
+			var u=-t/4;
+			var x1=x0;
+			var y1=y0*Math.cos(u)+z0*Math.sin(u);
+			var z1=-y0*Math.sin(u)+z0*Math.cos(u);
+			
+			//Z方向透视变换:
+			var z2=(800-z1)/800;
+			var y2=hh/2+y1/z2;
+			var x2=ww/2+x1/z2;
+					
+			//绘制圆片集:		    
+			var rr=255*(1-z2*z2);//远近颜色RED
+			var gg=255-x1*z2;//远近颜色GREEN
+			var bb=255-y1*z2;//远近颜色BLUE			
+			context.beginPath();
+			context.fillStyle ="rgba("+rr+","+gg+","+bb+","+(1.5-z2*z2)+")";//远处渐透明-截去多
+			context.arc(x2,y2,2/z2,0,2*Math.PI);//远处渐小
+			context.closePath();
+			context.fill();	
+		  } 
+		}    	
+		setTimeout("main()", 10);
+		t+=.03;
+	}   
+</script>    
+</head>
+<body onLoad="main()">
+<center>
+<canvas id="myCanvas" width="1200px" height="760px"></canvas>
+</center>
+<center>3D旋转动画--自定义三维对象, HTML+JS编程:  daode1212,2020-12-30</center>
+</body>
+</html>
