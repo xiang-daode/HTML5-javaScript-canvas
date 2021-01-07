@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>[直角坐标系列]曲线生成算法</title>
+</head>
+
+<body><center>
+<canvas id="myCanvas" width="1600" height="800" style="border:2px solid #006600;">
+</canvas>
+</body>
+</center>
+<script>
+var c=document.getElementById("myCanvas");
+var cxt=c.getContext("2d");
+	cxt.lineWidth=6;
+	cxt.strokeStyle="#880022";
+	
+for(var q=0;q<=1600;q+=2){        
+        var xc=q;
+        var yc=800-25*parseInt(q / 50 );
+        if(q==0) {
+		cxt.moveTo(xc,yc);
+	} 
+	cxt.lineTo(xc,yc);
+}
+	cxt.stroke();
+</script>
+</html>

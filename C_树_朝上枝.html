@@ -1,0 +1,154 @@
+<!DOCTYPE HTML>
+<html>
+<meta http-equiv="refresh" content="1">
+<body bgcolor="#285" onload="tree()" >
+<center>
+<canvas id="myCanvas" width="800" height="600" style="border:2px solid #808080;">
+Your browser does not support the canvas element.
+</canvas>
+<script type="text/javascript">
+//*********************************************
+//  树的形状控制参数表:	
+	var v0=0.92 ;//主杆衰退因子
+	var v1=0.95 ;//分枝衰退因子	
+	var v2=4 ;//分枝偏移控制
+	var v3=5 ;//从根向上数,第v3节开始绘制树枝
+	var v4=2 ;//主杆偏移控制
+	
+//*********************************************	
+var c=document.getElementById("myCanvas");
+var cxt=c.getContext("2d");
+
+//画矩形:
+    cxt.fillStyle="#ff00ff";
+    cxt.fillRect(0,600,800,10);
+
+//建立渐变色的背景:
+var grd=cxt.createLinearGradient(0,0,0,600); //x0,y0,x9,y9
+    grd.addColorStop(0,"#f040f0");
+    grd.addColorStop(1,"#406040");
+    cxt.fillStyle=grd;
+    cxt.fillRect(0,0,800,600);
+
+//===================
+var barX = new Array();//X坐标
+var barY = new Array();//Y坐标
+
+var barXb = new Array();//X坐标
+var barYb = new Array();//Y坐标
+
+//初始值:
+barX.push(400);
+barX.push(400);
+barY.push(600);
+barY.push(550);
+
+var L=Len(barX[0],barY[0],barX[1],barY[1]);
+var R=L;
+
+//迭代生成主杆:
+function tree(){
+			R*=v0;
+			//-------------生成主杆节点------------
+			var cnt=barX.length;
+			var a=v4*(Math.random()-0.5);
+			rndX1=R*Math.sin(a);
+			rndY1=-R*Math.cos(a);	
+			barX.push(barX[cnt-1]+rndX1);
+		  barY.push(barY[cnt-1]+rndY1);
+		
+		//----------绘制主杆-------------
+		for(var i=0;i<cnt-1;i++){
+		   cxt.beginPath();
+		   cxt.strokeStyle="#002200";//"#"+parseInt(16777216*Math.random()).toString(16);
+		   cxt.lineWidth = R;
+		   cxt.moveTo(barX[i-1],barY[i-1]);
+		   cxt.lineTo(barX[i],barY[i]-5);
+		   cxt.stroke();
+		   cxt.closePath();
+		}		
+		
+		//主杆迭代判断:
+		L=Len(barX[cnt-2],barY[cnt-2],barX[cnt-1],barY[cnt-1]);
+		if(L>1){
+			tree(); 
+		}else{
+			var cnt=barX.length;
+			branch(cnt); 
+		}
+}
+
+
+//绘制树枝:
+branch=function(cnt){
+	 
+  //从根向上数,第v3节开始绘制树枝: 
+	for(var h=v3;h<cnt;h++){ 
+
+		var x0=barX[h-1];
+		var y0=barY[h-1];
+		var xc=barX[h];
+		var yc=barY[h];
+	
+		var Li=Len(x0,y0,xc,yc);
+		
+		while(Li>1){			
+		   cxt.beginPath();
+		   var a=v2*(Math.random()-0.5);//偏移控制
+		   rndX1=Li*Math.sin(a);
+			 rndY1=-Li*Math.cos(a);
+		   xc=x0+rndX1;
+		   yc=y0+rndY1;
+		   
+		   cxt.strokeStyle="#002200";//"rgb(0,"+parseInt(0x44*Math.random()+0x00).toString(16)+",0)";//+;
+		   cxt.lineWidth = Li/3;//粗细衰减控制	
+		   cxt.moveTo(x0,y0);
+		   cxt.lineTo(xc,yc);
+		   cxt.stroke();
+		   cxt.closePath();
+			 x0=xc;y0=yc;
+			 Li*=v1;//枝长衰减控制
+			 
+			 //为生成枝上枝生成起点: 
+			 if(Li>5){
+			 	 			barXb.push(x0);
+		          barYb.push(y0);
+			}
+		}
+	}
+	
+	  //枝上枝: 
+		for( var k=0;k<barXb.length;k++){
+	     var Lj=10;//起步长度
+	     var x0=barXb[k];var y0=barYb[k];
+	     while(Lj>1){
+	     	 		   cxt.beginPath();
+						   var a=4*(Math.random()-0.5);//偏移控制
+						   rndX1=Lj*Math.sin(a);
+							 //rndY1=Lj*Math.cos(a);//枝条下垂
+							 rndY1=-Lj*Math.cos(a);//枝条向上
+						   var xc=x0+rndX1;
+						   var yc=y0+rndY1;
+						   
+						   cxt.strokeStyle="rgb(0,"+parseInt(0x66*Math.random()+0x44).toString(16)+",0)";//+;
+						   cxt.lineWidth = Lj/2;//粗细衰减控制	
+						   cxt.moveTo(x0,y0);
+						   cxt.lineTo(xc,yc);
+						   cxt.stroke();
+						   cxt.closePath();
+							 x0=xc;y0=yc;
+							 Lj*=v1;//枝长衰减控制
+	    }	
+	
+  }
+	
+}
+
+   //计算两点间的长度:
+   function Len(x1,y1,x2,y2){
+   	  return Math.sqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1));
+   }
+
+</script>
+</body>
+</html>
