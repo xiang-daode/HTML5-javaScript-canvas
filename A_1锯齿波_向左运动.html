@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>[直角坐标系列]曲线生成算法</title>
+</head>
+
+<body><center>
+<button onclick="run()">RUN</button><button onclick="stop()">STOP</button><br />
+<canvas id="myCanvas" width="1600" height="800" style="border:2px solid #006600;">
+</canvas>
+</body>
+</center>
+<script>
+var c=document.getElementById("myCanvas");
+var ctx=c.getContext("2d");
+	ctx.fillStyle ="#dd22ff";
+	ctx.fillRect(0, 0, 1600, 800); 
+	ctx.lineWidth=6;
+	ctx.strokeStyle="#880022";
+var flg;
+var tick=0;	
+
+
+function run(){
+	    tick+=4;
+		
+		 
+		 ctx.clearRect(0,0,1600,800);
+		 
+		 //用渐变色背景时:
+		 //ctx.fillStyle ="#dd22ff";
+		 //ctx.fillRect(0, 0, 1600, 800); 
+		 
+		 //用纯色背景时:
+		 Gradient(0);//0:线性渐变色 , 1:中心辐射式渐变色
+		 
+		ctx.beginPath();//ctx.closePath();
+		for(var xc=0;xc<=1600;xc+=2){        
+				var q=xc+tick;
+				var yc=400+(q % 50 )/2;
+				if(xc==0) {
+				ctx.moveTo(xc,yc);
+			} 
+			ctx.lineTo(xc,yc);
+			
+		}
+			ctx.stroke();
+		ctx.closePath();	
+		flg=setTimeout("run()",20);
+}	
+
+function Gradient(k){
+       
+		//中心辐射式渐变色:		
+		 var grdRadial = ctx.createRadialGradient(800, 400, 0,800, 400, 800);//(x1,y1,r1,x2,y2,r2)
+		 grdRadial.addColorStop(0, "green");
+		 grdRadial.addColorStop(1, "blue");
+		
+		
+		//线性辐射式渐变色:		
+		 var grdLinear = ctx.createLinearGradient(800, 0, 1600, 0);//(x1,y1,x2,y2)
+		 grdLinear.addColorStop(0, "#ee77ff");
+		 grdLinear.addColorStop(1, "#33ee99");		 
+		 
+		 // Fill with gradient
+		 if(k==0)ctx.fillStyle = grdLinear;
+		 if(k==1)ctx.fillStyle = grdRadial;
+		 ctx.fillRect(0, 0, 1600, 800); 
+		 ctx.fill();
+}
+
+
+	
+function stop(){
+   clearTimeout(flg);
+}	
+	
+</script>
+</html>

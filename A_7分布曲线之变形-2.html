@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>[直角坐标系列]曲线生成算法</title>
+</head>
+
+<body onload="run()"><center>
+<canvas id="myCanvas" width="1600" height="800" style="border:2px solid #006600;">
+</canvas>
+</body>
+</center>
+<script>
+var c=document.getElementById("myCanvas");
+var ctx=c.getContext("2d");
+
+function Axes(){
+	//X轴:
+	ctx.beginPath();ctx.strokeStyle="#ff2233";ctx.lineWidth=2;
+	ctx.moveTo(0,400);
+	ctx.lineTo(1600,400);
+	ctx.stroke();ctx.closePath();
+	//Y轴:
+	ctx.beginPath();ctx.strokeStyle="#3322ff";ctx.lineWidth=2;
+	ctx.moveTo(800,0);
+	ctx.lineTo(800,800);
+	ctx.stroke();ctx.closePath();
+}
+var tick=0;
+
+
+//函数曲线:
+function run(){
+	    tick+=2;	
+		tick=tick % 1000;
+		ctx.clearRect(0,0,1600,800);
+		 
+		 //用渐变色背景时:
+		 ctx.fillStyle ="#f0f0f0";
+		 ctx.fillRect(0, 0, 1600, 800); 
+		 
+		Axes();//画坐标轴 
+		
+		ctx.beginPath();ctx.lineWidth=6;ctx.strokeStyle="#337722";
+		for(var x=0;x<=1600;x+=2){        
+			s=(x-800)/(4+tick);
+			var yc=400-400/(Math.exp(s)+Math.exp(-s));
+			if(x==0) {
+				ctx.moveTo(x,yc);
+			} 
+			ctx.lineTo(x,yc);
+		}
+		ctx.stroke();ctx.closePath();
+		
+		setTimeout("run()",5);
+}
+
+</script>
+</html>
