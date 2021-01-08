@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>[直角坐标系列]曲线生成算法</title>
+</head>
+
+<body onload="run()"><center>
+<canvas id="myCanvas" width="1600" height="800" 
+style="border:2px solid #006600;background-color:#224466">
+</canvas>
+</body>
+</center>
+<script>
+var c=document.getElementById("myCanvas");
+var ctx=c.getContext("2d");
+var tick=0;
+function run(){
+	tick+=.1;	
+	tick=tick % 3600;
+	ctx.clearRect(0,0,1600,800);
+
+	 //用渐变色背景时:
+	 ctx.fillStyle ="#224466";
+	 ctx.fillRect(0, 0, 1600, 800); 
+	/*	 
+	//X轴:
+	ctx.beginPath();ctx.strokeStyle="#ff2233";ctx.lineWidth=4;
+	ctx.moveTo(0,400);
+	ctx.lineTo(1600,400);
+	ctx.stroke();ctx.closePath();
+
+	//Y轴:
+	ctx.beginPath();ctx.strokeStyle="#3322ff";ctx.lineWidth=4;
+	ctx.moveTo(800,0);
+	ctx.lineTo(800,800);
+	ctx.stroke();ctx.closePath();
+    */
+	
+	//太阳:
+	ctx.beginPath();
+	ctx.fillStyle ="#608060";
+	ctx.arc(800, 400,250,0,Math.PI*2);
+	ctx.fill();			
+	ctx.closePath();
+	
+	//行星:	
+	for(var x=0;x<=tick;x+=2){        
+        var R=300;
+        var xc=800+R*Math.cos(tick/57.3);
+        var yc=400+R*Math.sin(tick/57.3);		
+		ctx.beginPath();
+		ctx.fillStyle ="#FFEE88";
+		ctx.arc(xc, yc,10,0,Math.PI*2);
+		ctx.fill();			
+		ctx.closePath();
+	}
+	
+	setTimeout("run()",5);
+}
+</script>
+</html>

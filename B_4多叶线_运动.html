@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>[极坐标系列]曲线生成算法</title>
+</head>
+
+<body onload="run()"><center>
+<canvas id="myCanvas" width="1600" height="800" style="border:4px solid #ff00ff;">
+</canvas>
+</body>
+</center>
+<script>
+var c=document.getElementById("myCanvas");
+var cxt=c.getContext("2d");
+	cxt.lineWidth=8;
+	cxt.strokeStyle="#88ff88";
+
+var tick=0;	
+
+function run(){
+    tick++;	
+	if(tick==360){
+	    tick=0;
+		cxt.clearRect(0,0,1600,800);
+	    //用纯色背景:
+		cxt.fillStyle ="#FFFFFF";
+		cxt.fillRect(0, 0, 1600, 800);
+        cxt.fill();		
+	}
+
+    //轨迹线:	
+	cxt.beginPath();
+	for(var q=0;q<=tick;q++){
+			var xc=800+200*Math.cos(q/57.3)-80*Math.cos(8*q/57.3);
+			var yc=400+200*Math.sin(q/57.3)-80*Math.sin(8*q/57.3);
+			if(q==0) {
+			cxt.moveTo(xc,yc);
+		} 
+		cxt.lineTo(xc,yc);
+	}	
+	cxt.stroke();
+	cxt.closePath();
+	setTimeout("run()",5);
+}	
+</script>
+</html>

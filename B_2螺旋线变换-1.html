@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>[直角坐标系列]曲线生成算法</title>
+</head>
+
+<body onload="run()"><center>
+<canvas id="myCanvas" width="1600" height="800" 
+style="border:2px solid #006600;background-color:#224466">
+</canvas>
+</body>
+</center>
+<script>
+var c=document.getElementById("myCanvas");
+var ctx=c.getContext("2d");
+var tick=0;
+function run(){
+	tick+=1;	
+	tick=tick % 3600;
+	ctx.clearRect(0,0,1600,800);
+
+	 //用渐变色背景时:
+	 //ctx.fillStyle ="#224466";
+	 //ctx.fillRect(0, 0, 1600, 800);	
+	 Gradient(1);
+	
+	
+	//太阳:
+	ctx.beginPath();
+	//中心辐射式渐变色:		
+	var grdRadial = ctx.createRadialGradient(800, 400, 250,800, 400, 300);//(x1,y1,r1,x2,y2,r2)
+	grdRadial.addColorStop(0, "#FFEEAA");
+	grdRadial.addColorStop(1, "#994411");	
+	ctx.arc(800, 400,360,0,Math.PI*2);
+	ctx.fillStyle =grdRadial;
+	ctx.fill();			
+	ctx.closePath();
+	
+	//螺旋线:
+	ctx.beginPath();ctx.fillStyle ="#FFEEAA";	 
+	for(var q=0;q<=3600;q+=2){
+			var R=q/10;
+			var xc=800+R*Math.cos(q/57.3);
+			var yc=400+R*Math.sin(q/57.3);
+			if(q==0) {
+			ctx.moveTo(xc,yc);
+		} 
+		ctx.lineTo(xc,yc);
+	}
+		ctx.stroke();
+	ctx.closePath();
+	
+	//行星:	
+	for(var x=0;x<=tick;x+=2){        
+        var R=tick/10;
+        var xc=800+R*Math.cos(tick/57.3);
+        var yc=400+R*Math.sin(tick/57.3);		
+		ctx.beginPath();
+		tick%80>=40?ctx.fillStyle ="#FF88EE":ctx.fillStyle ="#FF5533";
+		ctx.arc(xc, yc,10,0,Math.PI*2);
+		ctx.fill();			
+		ctx.closePath();
+	}
+	
+	setTimeout("run()",5);
+}
+
+function Gradient(k){
+       
+		//中心辐射式渐变色:		
+		 var grdRadial = ctx.createRadialGradient(800, 400, 400,800, 400, 600);//(x1,y1,r1,x2,y2,r2)
+		 grdRadial.addColorStop(0, "white");
+		 grdRadial.addColorStop(1, "blue");
+		
+		
+		//线性辐射式渐变色:		
+		 var grdLinear = ctx.createLinearGradient(800, 0, 1600, 0);//(x1,y1,x2,y2)
+		 grdLinear.addColorStop(0, "#ee77ff");
+		 grdLinear.addColorStop(1, "#33ee99");		 
+		 
+		 // Fill with gradient
+		 if(k==0)ctx.fillStyle = grdLinear;
+		 if(k==1)ctx.fillStyle = grdRadial;
+		 ctx.fillRect(0, 0, 1600, 800); 
+		 ctx.fill();
+}
+</script>
+</html>
