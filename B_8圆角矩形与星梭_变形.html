@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>[极坐标系列]曲线生成算法</title>
+</head>
+
+<body  onload="run()"><center>
+<canvas id="myCanvas" width="1600" height="800" style="border:4px solid #990088;">
+</canvas></center>
+</body>
+<canvas id="myCanvas" width="1600px" height="900px"></canvas>
+<script>
+    var canvas=document.getElementById('myCanvas');
+    var context=canvas.getContext("2d");
+    var x0=800;var y0=400;
+    var xc,yc,xd,yd;
+    var t=0;//动画参数
+	var PI=3.14162;
+	
+//动态绘制函数:	
+function run(){
+		context.clearRect(0,0,1600,800);
+	    //用纯色背景:
+		context.fillStyle ="#FFFFFF";
+		context.fillRect(0, 0, 1600, 800);
+        context.fill();	
+		
+	//绘制曲线簇:
+	for(var g=-PI;g<=PI;g+=0.1){    
+		var x1=Math.cos(g);
+		var y1=Math.sin(g);	
+		xc=x0+300*Math.sign(x1)*Math.pow(x1*x1,6/(1+t));
+		yc=y0+300*Math.sign(y1)*Math.pow(y1*y1,6/(1+t));	
+		if(g==PI){xd=xc;yd=yc;}
+		context.beginPath();
+		context.lineWidth=10;
+		context.strokeStyle="#5588FF";//"rgb("+(xc % 255)+",0,"+(yc % 255)+")";
+		context.moveTo(xd,yd);
+		context.lineTo(xc,yc);
+		context.stroke();
+		context.closePath();
+		xd=xc;yd=yc;
+	}	
+		t+=0.01;
+		t=t % 40;
+		setTimeout("run()",5)	
+}
+
+
+
+
+
+</script>
+</html>

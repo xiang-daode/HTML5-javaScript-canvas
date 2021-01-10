@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>[极坐标系列]曲线生成算法</title>
+</head>
+
+<body onload="run()"><center>
+<canvas id="myCanvas" width="1600" height="800" style="border:4px solid #ff00ff;">
+</canvas>
+</body>
+</center>
+<script>
+var c=document.getElementById("myCanvas");
+var context=c.getContext("2d");
+	context.lineWidth=2;
+	context.strokeStyle="#880088";
+	var d2r=180/3.14159265;
+
+    var t=0.001;//动画参数
+	var PI=3.14162;
+	
+//动态绘制函数:	
+function run(){
+		context.clearRect(0,0,1600,800);
+	    //用纯色背景:
+		context.fillStyle ="#FFFFFF";
+		context.fillRect(0, 0, 1600, 800);
+        context.fill();	
+		context.lineWidth=2;
+	    context.strokeStyle="#880088";
+		
+		context.beginPath();
+		context.lineWidth=1;
+	    context.strokeStyle="#000088";
+		context.moveTo(0,400);context.lineTo(1600,400);
+		context.moveTo(680,0);context.lineTo(680,800);
+		context.stroke();
+		context.closePath();		
+		
+		//左边大齿轮:
+		context.beginPath();
+		context.lineWidth=2;
+	    context.strokeStyle="#880088";
+		for(var q=0;q<=360;q+=1){
+			var R=200+20*(q % 20>12?1:0);           
+			var xc=680+R*Math.cos(t*PI+q/d2r);
+			var yc=400+R*Math.sin(t*PI+q/d2r);
+			if(q==0) {
+			context.moveTo(xc,yc);
+		} 
+		context.lineTo(xc,yc);
+		}
+		context.stroke();
+	    context.closePath();
+	
+	    //齿轮上的小圆坐标:
+		var R2=0.75*R;
+		var x1=680+R2*Math.cos(t*PI);
+		var y1=400+R2*Math.sin(t*PI);
+		context.beginPath();
+		//中心辐射式渐变色:		
+		var grdRadial = context.createRadialGradient(x1, y1, 0,x1, y1, 20);//(x1,y1,r1,x2,y2,r2)
+		grdRadial.addColorStop(0, "#FFEEAA");
+		grdRadial.addColorStop(1, "#994411");	
+		context.arc(x1, y1,20,0,2*Math.PI);
+		context.fillStyle =grdRadial;
+		context.fill();			
+		context.closePath();		
+	
+	    //轴线上的小圆坐标:
+		var L=400;
+	    var xL=680+R2*Math.cos(t*PI)-Math.sqrt(L*L-(R2*Math.sin(t*PI))*(R2*Math.sin(t*PI)));
+	    var yL=400;
+		//中心辐射式渐变色:		
+		var grdRadial = context.createRadialGradient(xL, yL, 0,xL, yL, 20);//(x1,y1,r1,x2,y2,r2)
+		grdRadial.addColorStop(0, "#FFEEAA");
+		grdRadial.addColorStop(1, "#994411");	
+		context.arc(xL, yL,20,0,2*Math.PI);
+		context.fillStyle =grdRadial;
+		context.fill();			
+		context.closePath();
+	
+	    //绘制连杆:
+	    context.beginPath();
+		context.lineWidth=10;
+	    context.strokeStyle="#884422";
+		context.moveTo(xL-200,yL);context.lineTo(xL,yL);
+		context.strokeStyle="#422884";
+		context.moveTo(xL,yL);context.lineTo(x1,y1);
+		context.stroke();
+		context.closePath();		
+	
+	    //右边小齿轮:
+		context.beginPath();
+		context.lineWidth=2;
+	    context.strokeStyle="#880088";
+		for(var q=0;q<=360;q+=1){
+			var R=100-20*(q % 40>18?1:0);           
+			var xc=980+R*Math.cos(-2*t*PI+q/d2r);
+			var yc=400+R*Math.sin(-2*t*PI+q/d2r);
+			if(q==0) {
+			context.moveTo(xc,yc);
+		} 
+		context.lineTo(xc,yc);
+		}
+		context.stroke();
+	    context.closePath();	
+	
+		t+=0.005;
+		t=t % 2;
+		setTimeout("run()",5)	
+}
+</script>
+</html>
